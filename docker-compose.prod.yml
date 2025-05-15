@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   odoo:
-    image: idoogroup/veterinaries-saas:latest
+    image: idoogroup/veterinarias-saas
     networks:
       - veterinarias-saas
       - traefik

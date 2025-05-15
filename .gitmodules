@@ -2,3 +2,7 @@
 	path = addons/OCA/server-tools
 	url = https://github.com/OCA/server-tools.git
 	branch = 18.0
+[submodule "addons/OCA/server-brand"]
+	path = addons/OCA/server-brand
+	url = https://github.com/OCA/server-brand.git
+	branch = 18.0
