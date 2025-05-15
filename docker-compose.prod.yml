@@ -1,0 +1,59 @@
+version: '3.7'
+
+services:
+  odoo:
+    image: idoogroup/veterinaries-saas:latest
+    networks:
+      - veterinarias-saas
+      - traefik
+    depends_on:
+      - pg
+    environment:
+      HOST: pg
+      PASSWORD: odoo
+      PORT: '5432'
+      USER: odoo
+    volumes:
+      - odoo:/var/lib/odoo
+    deploy:
+      labels:
+        traefik.enable: 'true'
+        traefik.http.services.veterinarias-saas.loadbalancer.server.port: '8069'
+        swarmpit.service.deployment.autoredeploy: 'true'
+
+        traefik.http.routers.veterinarias-saas-https.tls.certresolver: letsencrypt
+        traefik.http.routers.veterinarias-saas-https.tls: 'true'
+        traefik.http.middlewares.gzip.compress: 'true'
+        traefik.http.routers.veterinarias-saas-https.middlewares: gzip
+
+        traefik.http.routers.veterinarias-saas-https.service: veterinarias-saas
+        traefik.http.routers.veterinarias-saas-https.entrypoints: https
+        traefik.http.routers.veterinarias-saas-https.rule: Host(`veterinas.odoo.idooproject.com`)
+
+        traefik.http.routers.veterinarias-saas-http.service: veterinarias-saas
+        traefik.http.routers.veterinarias-saas-http.entrypoints: http
+        traefik.http.routers.veterinarias-saas-http.rule: Host(`veterinarias.odoo.idooproject.com`)
+        traefik.http.middlewares.veterinarias-saas-https-redirect.redirectscheme.scheme: https
+        traefik.http.middlewares.veterinarias-saas-https-redirect.redirectscheme.permanent: 'true'
+        traefik.http.routers.veterinarias-saas-http.middlewares: veterinarias-saas-https-redirect
+
+  pg:
+    image: postgres:17-alpine
+    networks:
+      - veterinarias-saas
+    environment:
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+      POSTGRES_DB: odoo
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  odoo:
+
+networks:
+  veterinarias-saas:
+  traefik:
+    external: true
+  
